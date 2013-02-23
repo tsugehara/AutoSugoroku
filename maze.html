@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<title>すごろく自動生成テスト</title>
+	<style>
+	.main-container {
+		margin:0 auto;
+		width:480px;
+		height:480px;
+	}
+	</style>
+	<script type="text/javascript" src="../typescript-astar/js/astar.js"></script>
+	<script type="text/javascript" src="js/autosugoroku.js"></script>
+<script type="text/javascript">
+var maze;
+function generate() {
+	delete window.p;
+	document.getElementById("path_container").innerHTML = "";
+	var r = document.getElementById("always_random").checked;
+	maze = new AutoSugoroku.Generator(
+		document.getElementById("w").value && !r ? document.getElementById("w").value : AutoSugoroku.Generator.rand(20, 100),
+		document.getElementById("h").value && !r ? document.getElementById("h").value : AutoSugoroku.Generator.rand(20, 100),
+		document.getElementById("per").value ? document.getElementById("per").value : AutoSugoroku.Generator.rand(10, 100),
+		document.getElementById("bper").value ? document.getElementById("bper").value : AutoSugoroku.Generator.rand(1, 10)
+	);
+	document.getElementById("w").value = maze.width;
+	document.getElementById("h").value = maze.height;
+	document.getElementById("per").value = maze.change_course_per;
+	maze.genFixedPoints();
+	maze.genRoute();
+	maze.genCell();
+	maze.draw(document.getElementById("c"));
+	maze.printInfo();
+}
+function enableAll(enable) {
+	var inputs = document.getElementsByTagName("input");
+	if (enable) {
+		for (var i=0; i<inputs.length; i++)
+			inputs[i].disabled = "";
+	} else {
+		for (var i=0; i<inputs.length; i++)
+			inputs[i].disabled = "disabled";
+	}
+}
+function _calcPoint() {
+	var last = p.p[p.i].last();
+	var x = last.x;
+	var y = last.y;
+	var ret = maze.getDirections(maze.maze, maze.end, x, y, p.p[p.i]);
+
+
+	if (! ret) {
+		p.i++;
+		drawBg();
+		if (p.i < p.p.length)
+			maze.drawRoute(p.canvas, p.p[p.i]);
+	} else if (ret.length == 1) {
+		p.p[p.i].add(ret[0]);
+		maze.drawRouteOne(p.canvas, p.p[p.i], p.p[p.i].count() - 1);
+	} else {
+		for (var j=1; j<ret.length; j++) {
+			var newPath = new AutoSugoroku.PathManager();
+			p.p[p.i].copyTo(newPath);
+			newPath.add(ret[j]);
+			p.p.push(newPath);
+		}
+		p.p[p.i].add(ret[0]);
+		maze.drawRouteOne(p.canvas, p.p[p.i], p.p[p.i].count() - 1);
+	}
+
+	if (p.i < p.p.length) {
+		setTimeout(_calcPoint, 0);
+	} else {
+		p.pp = maze.calcPointedMaze(maze.maze, p.p);
+		drawPoint();
+		enableAll(true);
+	}
+}
+function drawBg() {
+	var ctx = p.canvas.getContext("2d");
+	ctx.putImageData(p.bg, 0, 0);
+}
+function calcPoint() {
+	enableAll(false);
+	window.p = {}
+	p.p = [];
+	p.i = 0;
+	p.p.push(new AutoSugoroku.PathManager(maze.start.x, maze.start.y));
+
+	p.canvas = document.getElementById("c");
+	var ctx = p.canvas.getContext("2d");
+	p.bg = ctx.getImageData(0, 0, p.canvas.width, p.canvas.height);
+
+	setTimeout(_calcPoint, 0);
+}
+function calcPointOne() {
+	//if (! confirm("同期的にポイントを計算します。複雑なすごろくの場合、この処理には非常に時間がかかる可能性があります。よろしいですか？"))
+	//	return;
+	window.p = {}
+	p.canvas = document.getElementById("c");
+	p.pp = maze.getPointedMaze();
+	drawPoint();
+}
+function drawPoint() {
+	if (! window.p || !p.pp) {
+		alert("まだ計算されていません。");
+		return;
+	}
+	maze.draw(p.canvas);
+	maze.drawPoint(
+		p.canvas,
+		p.pp
+	);
+}
+function clearMap() {
+	maze.draw(document.getElementById("c"));
+	document.getElementById("path_container").innerHTML = "";
+}
+function drawPaths(e) {
+	if (! window.p || !p.pp)
+		return;
+
+	var pos = maze.getCellOffsetByPoint(document.getElementById("c"), e.offsetX, e.offsetY);
+	var pointMaze = p.pp;
+	if (pos.x < pointMaze.length && pos.y < pointMaze[0].length && pos.x >= 0 && pos.y >= 0) {
+		maze.drawPaths(
+			document.getElementById("path_container"),
+			pointMaze[pos.x][pos.y].path,
+			pos.x,
+			pos.y
+		);
+	}
+}
+</script>
+</head>
+<body onload="generate()">
+<h1>Sugoroku genrator</h1>
+<div>
+	<div>
+		W <input type="text" id="w" value="25" size="3" />
+		H <input type="text" id="h" value="25" size="3" />
+		Per <input type="text" id="per" value="18" size="3" />
+		BPer <input type="text" id="bper" value="2" size="3" />
+		<input type="button" onclick="generate()" value="generate" />
+	</div>
+	<div>
+		<input type="button" onclick="calcPoint()" value="calc point" />
+		<input type="button" onclick="calcPointOne()" value="calc point one" />
+	</div>
+	<div>
+		<input type="button" onclick="drawPoint()" value="draw point" />
+		<input type="button" onclick="clearMap()" value="clear" />
+	</div>
+</div>
+<div>
+	<input type="checkbox" id="always_random" /> Random width & height
+</div>
+<div id="sugoroku_info">
+</div>
+<div>
+	<canvas id="c" width="400" height="400" onclick="drawPaths(event)"></canvas>
+</div>
+<div id="path_container">
+</div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+../../typescript-astar/js/astar.d.ts
+AutoSugoroku.ts
+--out ../js/autosugoroku.js
+--declaration
