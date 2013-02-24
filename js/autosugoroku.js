@@ -104,14 +104,24 @@ var AutoSugoroku;
                     y: y - 1
                 }
             ];
+            var ad = [];
             for(var i = 0; i < d.length; i++) {
                 if(this.getCell(maze, d[i].x, d[i].y) > 0) {
+                    ad.push(d[i]);
+                }
+            }
+            if(ad.length < 2) {
+                for(var i = 0; i < ad.length; i++) {
+                    directions.push(ad[i]);
+                }
+            } else {
+                for(var i = 0; i < ad.length; i++) {
                     var pathToGoal = astar.AStar.search(maze, {
-                        x: d[i].x,
-                        y: d[i].y
+                        x: ad[i].x,
+                        y: ad[i].y
                     }, end, paths.buf);
-                    if(pathToGoal.length > 0 || (d[i].x == end.x && d[i].y == end.y)) {
-                        directions.push(d[i]);
+                    if(pathToGoal.length > 0 || (ad[i].x == end.x && ad[i].y == end.y)) {
+                        directions.push(ad[i]);
                     }
                 }
             }

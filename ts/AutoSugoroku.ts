@@ -104,11 +104,19 @@ module AutoSugoroku {
 			//進み
 			var directions = [];
 			var d = [{x:x+1, y:y},{x:x-1, y:y},{x:x, y:y+1},{x:x, y:y-1}];
-			for (var i=0; i<d.length; i++) {
-				if (this.getCell(maze, d[i].x, d[i].y) > 0) {
-					var pathToGoal = astar.AStar.search(maze, {x:d[i].x, y:d[i].y}, end, paths.buf);
-					if (pathToGoal.length > 0 || (d[i].x == end.x && d[i].y == end.y))	//0ならゴールまで到達不可の死に道
-						directions.push(d[i]);
+			var ad = [];
+			for (var i=0; i<d.length; i++)
+				if (this.getCell(maze, d[i].x, d[i].y) > 0)
+					ad.push(d[i]);
+			if (ad.length < 2) {
+				//分かれ道でない場合すでに計算済みなので、到達かのうルートかの計算を省略
+				for (var i=0; i<ad.length; i++)
+					directions.push(ad[i]);
+			} else {
+				for (var i=0; i<ad.length; i++) {
+					var pathToGoal = astar.AStar.search(maze, {x:ad[i].x, y:ad[i].y}, end, paths.buf);
+					if (pathToGoal.length > 0 || (ad[i].x == end.x && ad[i].y == end.y))	//0ならゴールまで到達不可の死に道
+						directions.push(ad[i]);
 				}
 			}
 
