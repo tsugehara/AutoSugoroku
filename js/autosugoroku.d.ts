@@ -1,4 +1,17 @@
 module AutoSugoroku {
+    interface CellFactoryData {
+        x: number;
+        y: number;
+        distanceFromStart: number;
+        distanceToEnd: number;
+        beginRoutes: Offset[][];
+        isWall: bool;
+        seq: number;
+        activeCount: number;
+        activeSeq: number;
+        wallCount: number;
+        roadCount: number;
+    }
     class Generator {
         public width: number;
         public height: number;
@@ -8,22 +21,30 @@ module AutoSugoroku {
         public start: Pos;
         public end: Pos;
         public distance: number;
+        public cell_factory: (e: CellFactoryData) => number;
+        public cell_factory_owner: any;
+        public calc_route_limit: number;
         static fillStyle: {
             0: string;
             1: string;
             2: string;
             3: string;
             4: string;
+            5: string;
+            6: string;
+            7: string;
+            8: string;
+            9: string;
         };
         static rand(s: number, e: number): number;
         constructor(width: number, height: number, change_per?: number, branche_per?: number);
         public genCell(): void;
-        public mergeMoveInfo(moveInfo: bool[][]): number[][];
         public getCell(maze: number[][], x: number, y: number): number;
         public calcAllPaths(maze: number[][], end: Offset, x: number, y: number, limit?: number): PathManager[];
         public getDirections(maze: number[][], end: Offset, x: number, y: number, paths: PathManager): Offset[];
         public isUniquePath(paths, newPath): bool;
         public calcPointedMaze(maze: number[][], path: PathManager[]): any[];
+        public _pathSortFunc(a: any, b: any): number;
         public getPointedMaze(limit?: number, maze?: number[][], start?: Pos, end?: Pos): any[];
         public getRoutes(maze: number[][], pos: Pos): void;
         public genFixedPoints(): void;

@@ -1,4 +1,17 @@
 module AutoSugoroku {
+	export interface CellFactoryData {
+		x:number;
+		y:number;
+		distanceFromStart:number;
+		distanceToEnd:number;
+		beginRoutes:Offset[][];
+		isWall:bool;
+		seq:number;
+		activeCount:number;
+		activeSeq:number;
+		wallCount:number;
+		roadCount:number;
+	}
 	export class Generator{ 
 		width:number;
 		height:number;
@@ -8,13 +21,21 @@ module AutoSugoroku {
 		start:Pos;
 		end:Pos;
 		distance:number;
+		cell_factory: (e:CellFactoryData) => number;
+		cell_factory_owner: any;
+		calc_route_limit:number;
 
 		static fillStyle = {
 			0: "#000",
 			1: "#ff0",
 			2: "#f00",
 			3: "#ccc",
-			4: "#0f0"
+			4: "#0f0",
+			5: "#00f",
+			6: "#080",
+			7: "#800",
+			8: "#880",
+			9: "#0ff"
 		};
 
 		static rand(s:number, e:number):number {
@@ -24,6 +45,7 @@ module AutoSugoroku {
 		constructor(width:number, height:number, change_per?:number, branche_per?:number) {
 			this.width = width;
 			this.height = height;
+			this.calc_route_limit = 100;
 
 			this.maze = [];
 			for (var x=0; x<this.width; x++) {
@@ -48,17 +70,81 @@ module AutoSugoroku {
 		}
 
 		genCell() {
-		}
+			if (! this.cell_factory)
+				return;
 
-		mergeMoveInfo(moveInfo:bool[][]):number[][] {
-			var ret:number[][] = new number[][];
-			for (var x=0; x<this.width; x++) {
-				ret[x] = new number[];
-				for (var y=0; y<this.height; y++) {
-					ret[x][y] = moveInfo[x][y] ? 0 : this.maze[x][y];
+			var paths = this.calcAllPaths(this.maze, this.end, this.start.x, this.start.y, this.calc_route_limit);
+			var p_maze = this.calcPointedMaze(this.maze, paths);
+			var x_len = p_maze.length;
+			var y_len = p_maze[0].length;
+			var cell_count = x_len * y_len;
+			var p_ary = {};
+			var wall_count = 0;
+			var road_count = 0;
+			var active_count = 0;
+
+			for (var x=0; x<x_len; x++) {
+				for (var y=0; y<y_len; y++) {
+					if (this.maze[x][y] <= 0)
+						wall_count++;
+					else
+						road_count++;
+
+					var d = p_maze[x][y].distance;
+					var data = {
+						x: x,
+						y: y,
+						data: p_maze[x][y]
+					}
+					if (d < 0) {
+						if (! p_ary[-1])
+							p_ary[-1] = [];
+						p_ary[-1].push(data);
+					} else {
+						if (! p_ary[d])
+							p_ary[d] = [];
+						p_ary[d].push(data);
+					}
+
+					if (d > 0 && (x != this.end.x || y != this.end.y))
+						active_count++;
 				}
 			}
-			return ret;
+
+			var seq=0;
+			var active_seq=0;
+			for (var i in p_ary) {
+				for (var j=0; j<p_ary[i].length; j++) {
+					//call
+					x = p_ary[i][j].x;
+					y = p_ary[i][j].y;
+					var e:CellFactoryData = {
+						x: x,
+						y: y,
+						distanceFromStart: i == "-1" ? -1 : p_ary[i][j].data.distance,
+						distanceToEnd: -1,
+						beginRoutes: <Offset[][]>p_ary[i][j].data.path,
+						isWall: this.maze[x][y] == 0,
+						seq: seq++,
+						activeCount: active_count,
+						activeSeq: active_seq,
+						wallCount: wall_count,
+						roadCount: road_count
+					}
+					if (x == this.end.x && y == this.end.y || d.distanceFromStart <= 0)
+						e.activeSeq = -1;
+					if (i != "-1") {
+						if (e.distanceFromStart > 0 && (x != this.end.x || y != this.end.y))
+							active_seq++;
+						//ゴールまでの距離は、ここまでのルートの最短ルートの場合で計算
+						var pathToEnd = astar.AStar.search(this.maze, {x:x, y:y}, this.end, e.beginRoutes[0]);
+						e.distanceToEnd = pathToEnd.length;
+					}
+					var ret = this.cell_factory.call(this.cell_factory_owner, e);
+					if (ret !== null)
+						this.maze[e.x][e.y] = ret;
+				}
+			}
 		}
 
 		getCell(maze:number[][], x:number, y:number) {
@@ -167,11 +253,20 @@ module AutoSugoroku {
 					if (j == 0)
 						continue;
 					var newPath = path[i].slice(0, j);
-					if (this.isUniquePath(ret[x][y].path, newPath))
+					if (this.isUniquePath(ret[x][y].path, newPath)) {
 						ret[x][y].path.push(newPath);
+						if (ret[x][y].path.length > 1)
+							ret[x][y].path.sort(this._pathSortFunc);
+					}
 				}
 			}
 			return ret;
+		}
+
+		_pathSortFunc(a:any, b:any) {
+			if (a.length > b.length) return -1;
+			if (a.length < b.length) return 1;
+			return 0;
 		}
 
 		getPointedMaze(limit?:number, maze?:number[][], start?:Pos, end?:Pos) {

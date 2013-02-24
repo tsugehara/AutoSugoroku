@@ -4,6 +4,7 @@ var AutoSugoroku;
         function Generator(width, height, change_per, branche_per) {
             this.width = width;
             this.height = height;
+            this.calc_route_limit = 100;
             this.maze = [];
             for(var x = 0; x < this.width; x++) {
                 this.maze[x] = [];
@@ -30,22 +31,97 @@ var AutoSugoroku;
             1: "#ff0",
             2: "#f00",
             3: "#ccc",
-            4: "#0f0"
+            4: "#0f0",
+            5: "#00f",
+            6: "#080",
+            7: "#800",
+            8: "#880",
+            9: "#0ff"
         };
         Generator.rand = function rand(s, e) {
             return Math.floor(Math.random() * (e - s + 1) + s);
         };
         Generator.prototype.genCell = function () {
-        };
-        Generator.prototype.mergeMoveInfo = function (moveInfo) {
-            var ret = new Array();
-            for(var x = 0; x < this.width; x++) {
-                ret[x] = new Array();
-                for(var y = 0; y < this.height; y++) {
-                    ret[x][y] = moveInfo[x][y] ? 0 : this.maze[x][y];
+            if(!this.cell_factory) {
+                return;
+            }
+            var paths = this.calcAllPaths(this.maze, this.end, this.start.x, this.start.y, this.calc_route_limit);
+            var p_maze = this.calcPointedMaze(this.maze, paths);
+            var x_len = p_maze.length;
+            var y_len = p_maze[0].length;
+            var cell_count = x_len * y_len;
+            var p_ary = {
+            };
+            var wall_count = 0;
+            var road_count = 0;
+            var active_count = 0;
+            for(var x = 0; x < x_len; x++) {
+                for(var y = 0; y < y_len; y++) {
+                    if(this.maze[x][y] <= 0) {
+                        wall_count++;
+                    } else {
+                        road_count++;
+                    }
+                    var d = p_maze[x][y].distance;
+                    var data = {
+                        x: x,
+                        y: y,
+                        data: p_maze[x][y]
+                    };
+                    if(d < 0) {
+                        if(!p_ary[-1]) {
+                            p_ary[-1] = [];
+                        }
+                        p_ary[-1].push(data);
+                    } else {
+                        if(!p_ary[d]) {
+                            p_ary[d] = [];
+                        }
+                        p_ary[d].push(data);
+                    }
+                    if(d > 0 && (x != this.end.x || y != this.end.y)) {
+                        active_count++;
+                    }
                 }
             }
-            return ret;
+            var seq = 0;
+            var active_seq = 0;
+            for(var i in p_ary) {
+                for(var j = 0; j < p_ary[i].length; j++) {
+                    x = p_ary[i][j].x;
+                    y = p_ary[i][j].y;
+                    var e = {
+                        x: x,
+                        y: y,
+                        distanceFromStart: i == "-1" ? -1 : p_ary[i][j].data.distance,
+                        distanceToEnd: -1,
+                        beginRoutes: p_ary[i][j].data.path,
+                        isWall: this.maze[x][y] == 0,
+                        seq: seq++,
+                        activeCount: active_count,
+                        activeSeq: active_seq,
+                        wallCount: wall_count,
+                        roadCount: road_count
+                    };
+                    if(x == this.end.x && y == this.end.y || d.distanceFromStart <= 0) {
+                        e.activeSeq = -1;
+                    }
+                    if(i != "-1") {
+                        if(e.distanceFromStart > 0 && (x != this.end.x || y != this.end.y)) {
+                            active_seq++;
+                        }
+                        var pathToEnd = astar.AStar.search(this.maze, {
+                            x: x,
+                            y: y
+                        }, this.end, e.beginRoutes[0]);
+                        e.distanceToEnd = pathToEnd.length;
+                    }
+                    var ret = this.cell_factory.call(this.cell_factory_owner, e);
+                    if(ret !== null) {
+                        this.maze[e.x][e.y] = ret;
+                    }
+                }
+            }
         };
         Generator.prototype.getCell = function (maze, x, y) {
             if(x >= maze.length || x < 0 || y >= maze.length || y < 0) {
@@ -173,10 +249,22 @@ var AutoSugoroku;
                     var newPath = path[i].slice(0, j);
                     if(this.isUniquePath(ret[x][y].path, newPath)) {
                         ret[x][y].path.push(newPath);
+                        if(ret[x][y].path.length > 1) {
+                            ret[x][y].path.sort(this._pathSortFunc);
+                        }
                     }
                 }
             }
             return ret;
+        };
+        Generator.prototype._pathSortFunc = function (a, b) {
+            if(a.length > b.length) {
+                return -1;
+            }
+            if(a.length < b.length) {
+                return 1;
+            }
+            return 0;
         };
         Generator.prototype.getPointedMaze = function (limit, maze, start, end) {
             if(maze === undefined) {

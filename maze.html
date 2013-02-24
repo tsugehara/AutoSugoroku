@@ -14,7 +14,7 @@
 	<script type="text/javascript" src="js/autosugoroku.js"></script>
 <script type="text/javascript">
 var maze;
-function generate() {
+function generate(factory) {
 	delete window.p;
 	document.getElementById("path_container").innerHTML = "";
 	var r = document.getElementById("always_random").checked;
@@ -24,6 +24,9 @@ function generate() {
 		document.getElementById("per").value ? document.getElementById("per").value : AutoSugoroku.Generator.rand(10, 100),
 		document.getElementById("bper").value ? document.getElementById("bper").value : AutoSugoroku.Generator.rand(1, 10)
 	);
+	if (factory) {
+		maze.cell_factory = factory;
+	}
 	document.getElementById("w").value = maze.width;
 	document.getElementById("h").value = maze.height;
 	document.getElementById("per").value = maze.change_course_per;
@@ -32,6 +35,23 @@ function generate() {
 	maze.genCell();
 	maze.draw(document.getElementById("c"));
 	maze.printInfo();
+}
+function cell_factory(e) {
+	if (! maze.ext) {
+		maze.ext = {};
+		maze.ext.sp = Math.floor(Math.random() * e.activeCount);
+	}
+	if (e.isWall)
+		return null;
+	if (e.x == maze.end.x && e.y == maze.end.y)
+		return null;
+	if (e.x == maze.start.x && e.y == maze.start.y)
+		return null;
+
+	if (e.activeSeq == maze.ext.sp) {
+		return 9;
+	}
+	return Math.floor(Math.random() * 6)+3;
 }
 function enableAll(enable) {
 	var inputs = document.getElementsByTagName("input");
@@ -152,6 +172,7 @@ function drawPaths(e) {
 		Per <input type="text" id="per" value="18" size="3" />
 		BPer <input type="text" id="bper" value="2" size="3" />
 		<input type="button" onclick="generate()" value="generate" />
+		<input type="button" onclick="generate(cell_factory)" value="generate with custom cell factory" />
 	</div>
 	<div>
 		<input type="button" onclick="calcPoint()" value="calc point" />
