@@ -20,11 +20,11 @@ module AutoSugoroku {
         public genCell(): void;
         public mergeMoveInfo(moveInfo: bool[][]): number[][];
         public getCell(maze: number[][], x: number, y: number): number;
-        public calcAllPaths(maze: number[][], end: Offset, x: number, y: number): PathManager[];
+        public calcAllPaths(maze: number[][], end: Offset, x: number, y: number, limit?: number): PathManager[];
         public getDirections(maze: number[][], end: Offset, x: number, y: number, paths: PathManager): Offset[];
         public isUniquePath(paths, newPath): bool;
         public calcPointedMaze(maze: number[][], path: PathManager[]): any[];
-        public getPointedMaze(maze?: number[][], start?: Pos, end?: Pos): any[];
+        public getPointedMaze(limit?: number, maze?: number[][], start?: Pos, end?: Pos): any[];
         public getRoutes(maze: number[][], pos: Pos): void;
         public genFixedPoints(): void;
         public isChangeCourse(): bool;

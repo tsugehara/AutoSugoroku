@@ -60,6 +60,8 @@ function _calcPoint() {
 		maze.drawRouteOne(p.canvas, p.p[p.i], p.p[p.i].count() - 1);
 	} else {
 		for (var j=1; j<ret.length; j++) {
+			if (p.limit && p.limit <= p.p.length)
+				break;
 			var newPath = new AutoSugoroku.PathManager();
 			p.p[p.i].copyTo(newPath);
 			newPath.add(ret[j]);
@@ -82,11 +84,15 @@ function drawBg() {
 	ctx.putImageData(p.bg, 0, 0);
 }
 function calcPoint() {
+	clearMap();
 	enableAll(false);
 	window.p = {}
 	p.p = [];
 	p.i = 0;
 	p.p.push(new AutoSugoroku.PathManager(maze.start.x, maze.start.y));
+	p.limit = document.getElementById("limit").value;
+	if (p.limit)
+		p.limit = parseInt(p.limit);
 
 	p.canvas = document.getElementById("c");
 	var ctx = p.canvas.getContext("2d");
@@ -95,11 +101,14 @@ function calcPoint() {
 	setTimeout(_calcPoint, 0);
 }
 function calcPointOne() {
-	//if (! confirm("同期的にポイントを計算します。複雑なすごろくの場合、この処理には非常に時間がかかる可能性があります。よろしいですか？"))
-	//	return;
+	clearMap();
 	window.p = {}
 	p.canvas = document.getElementById("c");
-	p.pp = maze.getPointedMaze();
+	p.limit = document.getElementById("limit").value;
+	if (p.limit)
+		p.limit = parseInt(p.limit);
+
+	p.pp = maze.getPointedMaze(p.limit);
 	drawPoint();
 }
 function drawPoint() {
@@ -147,6 +156,7 @@ function drawPaths(e) {
 	<div>
 		<input type="button" onclick="calcPoint()" value="calc point" />
 		<input type="button" onclick="calcPointOne()" value="calc point one" />
+		limit: <input type="text" name="limit" id="limit" value="100" />
 	</div>
 	<div>
 		<input type="button" onclick="drawPoint()" value="draw point" />

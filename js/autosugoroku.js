@@ -53,7 +53,7 @@ var AutoSugoroku;
             }
             return maze[x][y];
         };
-        Generator.prototype.calcAllPaths = function (maze, end, x, y) {
+        Generator.prototype.calcAllPaths = function (maze, end, x, y, limit) {
             var p = new Array();
             var i = 0;
             p.push(new PathManager(x, y));
@@ -68,6 +68,9 @@ var AutoSugoroku;
                     p[i].add(ret[0]);
                 } else {
                     for(var j = 1; j < ret.length; j++) {
+                        if(limit && limit <= p.length) {
+                            break;
+                        }
                         var newPath = new PathManager();
                         p[i].copyTo(newPath);
                         newPath.add(ret[j]);
@@ -165,7 +168,7 @@ var AutoSugoroku;
             }
             return ret;
         };
-        Generator.prototype.getPointedMaze = function (maze, start, end) {
+        Generator.prototype.getPointedMaze = function (limit, maze, start, end) {
             if(maze === undefined) {
                 maze = this.maze;
             }
@@ -175,7 +178,7 @@ var AutoSugoroku;
             if(end === undefined) {
                 end = this.end;
             }
-            var p = this.calcAllPaths(maze, end, start.x, start.y);
+            var p = this.calcAllPaths(maze, end, start.x, start.y, limit);
             return this.calcPointedMaze(maze, p);
         };
         Generator.prototype.getRoutes = function (maze, pos) {

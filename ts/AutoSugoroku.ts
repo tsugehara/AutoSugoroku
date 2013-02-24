@@ -67,7 +67,7 @@ module AutoSugoroku {
 			return maze[x][y];
 		}
 
-		calcAllPaths(maze:number[][], end:Offset, x:number, y:number) {
+		calcAllPaths(maze:number[][], end:Offset, x:number, y:number, limit?:number) {
 			var p = new PathManager[];
 			var i = 0;
 			p.push(new PathManager(x, y));
@@ -83,6 +83,8 @@ module AutoSugoroku {
 					p[i].add(ret[0]);
 				} else {
 					for (var j=1; j<ret.length; j++) {
+						if (limit && limit <= p.length)
+							break;
 						var newPath = new PathManager();
 						p[i].copyTo(newPath);
 						newPath.add(ret[j]);
@@ -164,7 +166,7 @@ module AutoSugoroku {
 			return ret;
 		}
 
-		getPointedMaze(maze?:number[][], start?:Pos, end?:Pos) {
+		getPointedMaze(limit?:number, maze?:number[][], start?:Pos, end?:Pos) {
 			if (maze === undefined)
 				maze = this.maze;
 			if (start === undefined)
@@ -172,7 +174,7 @@ module AutoSugoroku {
 			if (end === undefined)
 				end = this.end;
 
-			var p = this.calcAllPaths(maze, end, start.x, start.y);
+			var p = this.calcAllPaths(maze, end, start.x, start.y, limit);
 			return this.calcPointedMaze(maze, p);
 		}
 
