@@ -24,18 +24,7 @@ module AutoSugoroku {
         public cell_factory: (e: CellFactoryData) => number;
         public cell_factory_owner: any;
         public calc_route_limit: number;
-        static fillStyle: {
-            0: string;
-            1: string;
-            2: string;
-            3: string;
-            4: string;
-            5: string;
-            6: string;
-            7: string;
-            8: string;
-            9: string;
-        };
+        static fillStyle: any;
         static rand(s: number, e: number): number;
         constructor(width: number, height: number, change_per?: number, branche_per?: number);
         public genCell(): void;
@@ -46,7 +35,6 @@ module AutoSugoroku {
         public calcPointedMaze(maze: number[][], path: PathManager[]): any[];
         public _pathSortFunc(a: any, b: any): number;
         public getPointedMaze(limit?: number, maze?: number[][], start?: Pos, end?: Pos): any[];
-        public getRoutes(maze: number[][], pos: Pos): void;
         public genFixedPoints(): void;
         public isChangeCourse(): bool;
         public isConfluence(p, current_course, maze: number[][]): bool;

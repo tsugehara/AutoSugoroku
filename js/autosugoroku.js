@@ -2,6 +2,20 @@ var AutoSugoroku;
 (function (AutoSugoroku) {
     var Generator = (function () {
         function Generator(width, height, change_per, branche_per) {
+            if(!Generator.fillStyle) {
+                Generator.fillStyle = {
+                };
+                Generator.fillStyle[0] = "#000";
+                Generator.fillStyle[1] = "#ff0";
+                Generator.fillStyle[2] = "#f00";
+                Generator.fillStyle[3] = "#ccc";
+                Generator.fillStyle[4] = "#0f0";
+                Generator.fillStyle[5] = "#00f";
+                Generator.fillStyle[6] = "#080";
+                Generator.fillStyle[7] = "#800";
+                Generator.fillStyle[8] = "#880";
+                Generator.fillStyle[9] = "#0ff";
+            }
             this.width = width;
             this.height = height;
             this.calc_route_limit = 100;
@@ -26,18 +40,6 @@ var AutoSugoroku;
             this.end = null;
             this.distance = -1;
         }
-        Generator.fillStyle = {
-            0: "#000",
-            1: "#ff0",
-            2: "#f00",
-            3: "#ccc",
-            4: "#0f0",
-            5: "#00f",
-            6: "#080",
-            7: "#800",
-            8: "#880",
-            9: "#0ff"
-        };
         Generator.rand = function rand(s, e) {
             return Math.floor(Math.random() * (e - s + 1) + s);
         };
@@ -278,11 +280,6 @@ var AutoSugoroku;
             }
             var p = this.calcAllPaths(maze, end, start.x, start.y, limit);
             return this.calcPointedMaze(maze, p);
-        };
-        Generator.prototype.getRoutes = function (maze, pos) {
-            var x, y;
-            if(maze[x][y] == 0) {
-            }
         };
         Generator.prototype.genFixedPoints = function () {
             do {

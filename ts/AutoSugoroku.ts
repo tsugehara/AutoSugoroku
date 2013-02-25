@@ -25,24 +25,27 @@ module AutoSugoroku {
 		cell_factory_owner: any;
 		calc_route_limit:number;
 
-		static fillStyle = {
-			0: "#000",
-			1: "#ff0",
-			2: "#f00",
-			3: "#ccc",
-			4: "#0f0",
-			5: "#00f",
-			6: "#080",
-			7: "#800",
-			8: "#880",
-			9: "#0ff"
-		};
+		static fillStyle:any;
 
 		static rand(s:number, e:number):number {
 			return Math.floor(Math.random() * (e - s + 1) + s);
 		}
 
 		constructor(width:number, height:number, change_per?:number, branche_per?:number) {
+			if (! Generator.fillStyle) {
+				Generator.fillStyle = {};
+				Generator.fillStyle[0] = "#000";
+				Generator.fillStyle[1] = "#ff0";
+				Generator.fillStyle[2] = "#f00";
+				Generator.fillStyle[3] = "#ccc";
+				Generator.fillStyle[4] = "#0f0";
+				Generator.fillStyle[5] = "#00f";
+				Generator.fillStyle[6] = "#080";
+				Generator.fillStyle[7] = "#800";
+				Generator.fillStyle[8] = "#880";
+				Generator.fillStyle[9] = "#0ff";
+			}
+
 			this.width = width;
 			this.height = height;
 			this.calc_route_limit = 100;
@@ -279,13 +282,6 @@ module AutoSugoroku {
 
 			var p = this.calcAllPaths(maze, end, start.x, start.y, limit);
 			return this.calcPointedMaze(maze, p);
-		}
-
-		getRoutes(maze:number[][], pos:Pos) {
-			var x, y;
-			if (maze[x][y] == 0) {
-
-			}
 		}
 
 		genFixedPoints() {
