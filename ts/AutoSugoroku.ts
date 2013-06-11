@@ -157,7 +157,7 @@ module AutoSugoroku {
 		}
 
 		calcAllPaths(maze:number[][], end:Offset, x:number, y:number, limit?:number) {
-			var p = new PathManager[];
+			var p:PathManager[] = [];
 			var i = 0;
 			p.push(new PathManager(x, y));
 
@@ -742,7 +742,7 @@ module AutoSugoroku {
 	export class PathManager {
 		buf: Offset[];
 		constructor(x?:any, y?:number) {
-			this.buf = new Offset[];
+			this.buf = [];
 			if (x !== undefined)
 				this.add(x, y);
 		}

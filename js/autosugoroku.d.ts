@@ -1,11 +1,11 @@
-module AutoSugoroku {
+declare module AutoSugoroku {
     interface CellFactoryData {
         x: number;
         y: number;
         distanceFromStart: number;
         distanceToEnd: number;
         beginRoutes: Offset[][];
-        isWall: bool;
+        isWall: boolean;
         seq: number;
         activeCount: number;
         activeSeq: number;
@@ -31,17 +31,17 @@ module AutoSugoroku {
         public getCell(maze: number[][], x: number, y: number): number;
         public calcAllPaths(maze: number[][], end: Offset, x: number, y: number, limit?: number): PathManager[];
         public getDirections(maze: number[][], end: Offset, x: number, y: number, paths: PathManager): Offset[];
-        public isUniquePath(paths, newPath): bool;
+        public isUniquePath(paths, newPath): boolean;
         public calcPointedMaze(maze: number[][], path: PathManager[]): any[];
         public _pathSortFunc(a: any, b: any): number;
         public getPointedMaze(limit?: number, maze?: number[][], start?: Pos, end?: Pos): any[];
         public genFixedPoints(): void;
-        public isChangeCourse(): bool;
-        public isConfluence(p, current_course, maze: number[][]): bool;
+        public isChangeCourse(): boolean;
+        public isConfluence(p, current_course, maze: number[][]): boolean;
         public _genBranch(p: Pos, maze: number[][], main_distance: number): number[][];
         public genBranch(maze: number[][], main_distance: number): number[][];
         public genRoute(): void;
-        public canCreateRoute(p: Pos, maze: number[][], ewsn: any): bool;
+        public canCreateRoute(p: Pos, maze: number[][], ewsn: any): boolean;
         public _printRow(container: HTMLElement, info: string): void;
         public printInfo(id: string): void;
         public getNewCourse(p: Pos, maze: number[][]);
@@ -60,7 +60,7 @@ module AutoSugoroku {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
-        public is(pos: Offset): bool;
+        public is(pos: Offset): boolean;
         public addNew(pos: Offset): Pos;
         public add(pos: Offset): void;
     }
@@ -76,7 +76,7 @@ module AutoSugoroku {
         public get(index: number): Offset;
         public last(): Offset;
         public slice(start: number, end?: number): Offset[];
-        public has(x: any, y?: number): bool;
+        public has(x: any, y?: number): boolean;
         public copyTo(p: PathManager, len?: number): void;
         public count(): number;
     }
