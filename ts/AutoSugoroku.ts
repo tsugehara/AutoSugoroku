@@ -5,7 +5,7 @@ module AutoSugoroku {
 		distanceFromStart:number;
 		distanceToEnd:number;
 		beginRoutes:Offset[][];
-		isWall:bool;
+		isWall:boolean;
 		seq:number;
 		activeCount:number;
 		activeSeq:number;
