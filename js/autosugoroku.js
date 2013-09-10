@@ -28,11 +28,13 @@ var AutoSugoroku;
             }
 
             if (change_per === undefined)
-                this.change_course_per = 18; else
+                this.change_course_per = 18;
+else
                 this.change_course_per = change_per;
 
             if (branche_per === undefined)
-                this.branche_create_per = 2; else
+                this.branche_create_per = 2;
+else
                 this.branche_create_per = branche_per;
 
             this.start = null;
@@ -60,7 +62,8 @@ var AutoSugoroku;
             for (var x = 0; x < x_len; x++) {
                 for (var y = 0; y < y_len; y++) {
                     if (this.maze[x][y] <= 0)
-                        wall_count++; else
+                        wall_count++;
+else
                         road_count++;
 
                     var d = p_maze[x][y].distance;
@@ -470,10 +473,14 @@ var AutoSugoroku;
             var ret = [];
             if (typeof (ewsn) != "string") {
                 if (ewsn.x == 1)
-                    ewsn = "east"; else if (ewsn.x == -1)
-                    ewsn = "west"; else if (ewsn.y == 1)
-                    ewsn = "south"; else if (ewsn.y == -1)
-                    ewsn = "north"; else
+                    ewsn = "east";
+else if (ewsn.x == -1)
+                    ewsn = "west";
+else if (ewsn.y == 1)
+                    ewsn = "south";
+else if (ewsn.y == -1)
+                    ewsn = "north";
+else
                     throw "hen dayo";
             }
             switch (ewsn) {
@@ -678,7 +685,8 @@ var AutoSugoroku;
         }
         PathManager.prototype.add = function (x, y) {
             if (typeof x == "number")
-                this.buf.push({ x: x, y: y }); else
+                this.buf.push({ x: x, y: y });
+else
                 this.buf.push(x);
 
             return this;
@@ -689,7 +697,8 @@ var AutoSugoroku;
             for (var i = 0; i < this.buf.length; i++)
                 ret[i] = this.buf[i];
             if (typeof x == "number")
-                ret[i] = { x: x, y: y }; else
+                ret[i] = { x: x, y: y };
+else
                 ret[i] = x;
             return ret;
         };

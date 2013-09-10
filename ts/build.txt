@@ -2,5 +2,4 @@
 AutoSugoroku.ts
 --out ../js/autosugoroku.js
 --declaration
---disallowbool
---disallowimportmodule
+--removeComments
